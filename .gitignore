@@ -1,0 +1,8 @@
+Application/bin*
+Application/obj*
+
+ServiceWorker/bin*
+ServiceWorker/obj*
+
+Tests/bin*
+Tests/obj*
