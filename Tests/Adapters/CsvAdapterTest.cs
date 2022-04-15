@@ -2,13 +2,13 @@ using System.Data;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text;
-using Application.Adapters;
+using Application.Commons.Adapters;
 using Moq;
 using Xunit;
 
 namespace Tests.Loaders;
 
-public class CsvAdapterTests
+public class CsvAdapterTest
 {
     [Fact]
     public void CreateTableFromHeader_Valid_Input()

@@ -1,7 +1,7 @@
 using System.Data;
 using System.IO.Abstractions;
 
-namespace Application.Adapters;
+namespace Application.Commons.Adapters;
 
 public class CsvAdapter
 {
