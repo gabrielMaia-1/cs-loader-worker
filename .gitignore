@@ -6,3 +6,6 @@ ServiceWorker/obj*
 
 Tests/bin*
 Tests/obj*
+
+Loader/bin*
+Loader/obj*

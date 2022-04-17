@@ -18,11 +18,6 @@ public class DataTableSender
         this.httpClient = httpClient;
     }
 
-    public void SendCsv(string path, string url)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task LoadData(string path, HttpMethod httpMethod, string url)
     {
         var table = await csvAdapter.LoadTableAsync(path);
