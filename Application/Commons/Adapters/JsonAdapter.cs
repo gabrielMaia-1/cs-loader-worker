@@ -4,7 +4,13 @@ using System.Text.Json.Nodes;
 
 namespace Application.Commons.Adapters;
 
-public class JsonAdapter
+public interface IJsonAdapter
+{
+    JsonObject ConvertRowToJson(DataRow row);
+    JsonArray ConvertToJson(DataTable table);
+}
+
+public class JsonAdapter : IJsonAdapter
 {
 
     public JsonArray ConvertToJson(DataTable table)
@@ -30,6 +36,4 @@ public class JsonAdapter
 
         return obj;
     }
-
-    
 }

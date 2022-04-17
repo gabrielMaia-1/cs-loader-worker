@@ -1,6 +1,7 @@
 using System.Data;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using Application.Commons.Adapters;
 using Moq;
@@ -13,8 +14,8 @@ public class CsvAdapterTest
     [Fact]
     public void CreateTableFromHeader_Valid_Input()
     {
-        var mock = new Mock<IFileSystem>();
-        var sut = new CsvAdapter(mock.Object);
+        var mock = new MockFileSystem();
+        var sut = new CsvAdapter(mock);
         var columnNames = new string[] { "column1", "column2", "column3" };
 
         var table = sut.CreateTableFromHeader(string.Join(";", columnNames));
@@ -28,8 +29,8 @@ public class CsvAdapterTest
     [Fact]
     public void CreateTableFromHeader_Null_Input()
     {
-        var mock = new Mock<IFileSystem>();
-        var sut = new CsvAdapter(mock.Object);
+        var mock = new MockFileSystem();
+        var sut = new CsvAdapter(mock);
 
         var table = sut.CreateTableFromHeader(null);
 
@@ -39,8 +40,8 @@ public class CsvAdapterTest
     [Fact]
     public void CreateTableFromHeader_Empty_Input()
     {
-        var mock = new Mock<IFileSystem>();
-        var sut = new CsvAdapter(mock.Object);
+        var mock = new MockFileSystem();
+        var sut = new CsvAdapter(mock);
 
         var table = sut.CreateTableFromHeader("");
 
@@ -50,8 +51,8 @@ public class CsvAdapterTest
     [Fact]
     public void AddLineToTable_Valid_Line()
     {
-        var mock = new Mock<IFileSystem>();
-        var sut = new CsvAdapter(mock.Object);
+        var mock = new MockFileSystem();
+        var sut = new CsvAdapter(mock);
 
         var table = new DataTable();
         var columns = new DataColumn[]
@@ -76,8 +77,8 @@ public class CsvAdapterTest
     [Fact]
     public void AddLineToTable_NullOrEmptyLine()
     {
-        var mock = new Mock<IFileSystem>();
-        var sut = new CsvAdapter(mock.Object);
+        var mock = new MockFileSystem();
+        var sut = new CsvAdapter(mock);
 
         var table = new DataTable();
         var columns = new DataColumn[]
@@ -102,14 +103,10 @@ public class CsvAdapterTest
         var path = "./pasta/arquivo.csv";
         var csvContent = "coluna1;coluna2;coluna3\n1;2;3";
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csvContent));
-        using var reader = new StreamReader(stream);
+        var mock = new MockFileSystem();
+        mock.AddFile(path, new MockFileData(csvContent));
 
-        var mock = new Mock<IFileSystem>();
-        mock.Setup(m => m.File.OpenText(path)).Returns(reader);
-
-        var sut = new CsvAdapter(mock.Object);
-
+        var sut = new CsvAdapter(mock);
 
         var table = await sut.LoadTableAsync(path);
 

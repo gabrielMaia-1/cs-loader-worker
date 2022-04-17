@@ -3,7 +3,14 @@ using System.IO.Abstractions;
 
 namespace Application.Commons.Adapters;
 
-public class CsvAdapter
+public interface ICsvAdapter
+{
+    void AddLineToTable(string? line, DataTable table);
+    DataTable CreateTableFromHeader(string? header);
+    Task<DataTable> LoadTableAsync(string path);
+}
+
+public class CsvAdapter : ICsvAdapter
 {
     private readonly IFileSystem fileSystem;
 
@@ -29,11 +36,11 @@ public class CsvAdapter
 
     public void AddLineToTable(string? line, DataTable table)
     {
-        if(string.IsNullOrWhiteSpace(line)) return;
+        if (string.IsNullOrWhiteSpace(line)) return;
         var row = table.NewRow();
         var lineItens = line.Split(';');
 
-        for(var i = 0; i < lineItens.Length; i++)
+        for (var i = 0; i < lineItens.Length; i++)
         {
             row[i] = lineItens[i];
         }
@@ -43,10 +50,10 @@ public class CsvAdapter
 
     public DataTable CreateTableFromHeader(string? header)
     {
-        if(string.IsNullOrWhiteSpace(header)) return new DataTable();
+        if (string.IsNullOrWhiteSpace(header)) return new DataTable();
         var table = new DataTable();
         var columnNames = header.Split(';');
-        
+
         foreach (var column in columnNames)
         {
             table.Columns.Add(new DataColumn(column));
