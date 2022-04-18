@@ -46,7 +46,7 @@ public class DatatableSenderTest
 
         var httpClient = new HttpClient(handlerMock.Object);
         var jsonAdapter = new JsonAdapter();
-        var csvAdapter = new CsvAdapter(fileSystem.FileSystem);
+        var csvAdapter = new CsvReader(fileSystem.FileSystem);
 
         var sut = new DataTableSender(jsonAdapter, csvAdapter, httpClient);
 
