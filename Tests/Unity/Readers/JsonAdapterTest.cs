@@ -9,22 +9,24 @@ namespace Tests.Adapters;
 
 public class JsonAdapterTest
 {
-    private readonly ITestOutputHelper Output;
 
-    public JsonAdapterTest(ITestOutputHelper output)
+    public JsonAdapterTest()
     {
-        Output = output;
     }
 
     [Fact]
     public void ConvertRowToJson_Valid()
     {
-        var table = new DataTable();
-        table.Columns.AddRange( new DataColumn[] {
-            new DataColumn("Coluna1", typeof(decimal)),
-            new DataColumn("Coluna2"),
-            new DataColumn("Coluna3", typeof(DateTime))
-        });
+        var table = new DataTable()
+        {
+            Columns =
+            {
+                new DataColumn("Coluna1", typeof(decimal)),
+                new DataColumn("Coluna2"),
+                new DataColumn("Coluna3", typeof(DateTime))
+            }
+        };
+
         var row  = table.NewRow();
 
         row[0] = 2.2;
@@ -43,8 +45,6 @@ public class JsonAdapterTest
         Assert.Equal(row[0].ToString(),obj["Coluna1"]!.ToString());
         Assert.Equal(row[1].ToString(),obj["Coluna2"]!.ToString());
         Assert.Equal(row[2].ToString(),obj["Coluna3"]!.ToString());
-
-        Output.WriteLine(obj.ToJsonString());
     }
 
     [Fact]
@@ -85,7 +85,5 @@ public class JsonAdapterTest
         Assert.Equal(row[0].ToString(),node["Coluna1"]!.ToString());
         Assert.Equal(row[1].ToString(),node["Coluna2"]!.ToString());
         Assert.Equal(row[2].ToString(),node["Coluna3"]!.ToString());
-
-        Output.WriteLine(obj.ToJsonString());
     }
 }

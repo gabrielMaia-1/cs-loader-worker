@@ -42,7 +42,19 @@ public class DatatableSenderTest
                 response.StatusCode = HttpStatusCode.OK;
                 return response;
             })
-            .Verifiable();
+            .Callback<HttpRequestMessage, CancellationToken>(async (message, token)=> {
+                Assert.NotNull(message.Content);
+                Assert.True(HttpMethod.Post == message.Method);
+
+                var body = await message.Content!.ReadAsStringAsync();
+                var bodyJson = JsonArray.Parse(body)!;
+
+                var element = bodyJson[0]!;
+
+                Assert.True(element.AsObject().ContainsKey("column1"));
+                Assert.True(element.AsObject().ContainsKey("column2"));
+                Assert.True(element.AsObject().ContainsKey("column3"));
+            });
 
         var httpClient = new HttpClient(handlerMock.Object);
         var jsonAdapter = new JsonAdapter();
@@ -51,30 +63,5 @@ public class DatatableSenderTest
         var sut = new DataTableSender(jsonAdapter, csvAdapter, httpClient);
 
         await sut.LoadData(path, HttpMethod.Post, url: url);
-
-        handlerMock.Protected()
-        .Verify(
-            "SendAsync",
-            Times.Exactly(1),
-            ItExpr.Is<HttpRequestMessage>(req => CheckContent(req)),
-            ItExpr.IsAny<CancellationToken>()
-        );
-    }
-
-    private bool CheckContent(HttpRequestMessage message)
-    {
-        if(message.Content is null) return false;
-        
-        var body = message.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-        var bodyJson = JsonArray.Parse(body);
-
-        if(bodyJson is null) return false;
-
-        var element = bodyJson[0]!;
-
-        return HttpMethod.Post == message.Method &&
-        element.AsObject().ContainsKey("column1") &&
-        element.AsObject().ContainsKey("column2") &&
-        element.AsObject().ContainsKey("column3");
     }
 }
