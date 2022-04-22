@@ -21,7 +21,7 @@ public class DataTableSender
 
     public async Task LoadData(string path, HttpMethod httpMethod, string url)
     {
-        var table = await csvAdapter.CreateTableFromFileAsync(path);
+        var table = await csvAdapter.ReadAllAsync();
 
         //Add Transformation Pipeline
 

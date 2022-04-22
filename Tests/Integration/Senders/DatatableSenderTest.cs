@@ -30,6 +30,7 @@ public class DatatableSenderTest
         var fileSystem = new MockFileSystem();
         var fileData = new MockFileData("column1;column2;column3\n1;2;3\n4;5;6");
         fileSystem.AddFile(path, fileData);
+        using var stream = fileSystem.File.OpenText(path);
 
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -58,7 +59,7 @@ public class DatatableSenderTest
 
         var httpClient = new HttpClient(handlerMock.Object);
         var jsonAdapter = new JsonAdapter();
-        var csvAdapter = new CsvReader(fileSystem.FileSystem);
+        var csvAdapter = new CsvReader(stream);
 
         var sut = new DataTableSender(jsonAdapter, csvAdapter, httpClient);
 

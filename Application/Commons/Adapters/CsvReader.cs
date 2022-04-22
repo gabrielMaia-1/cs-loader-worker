@@ -8,44 +8,45 @@ namespace Application.Commons.Adapters;
 
 public class CsvReader : ICsvReader
 {
-    private readonly IFileSystem fileSystem;
+    private readonly StreamReader reader;
     private readonly CsvConfiguration configuration;
 
-    public CsvReader(IFileSystem fs, CsvConfiguration configuration)
+    public CsvReader(StreamReader reader, CsvConfiguration configuration)
     {
-        fileSystem = fs;
+        this.reader = reader;
         this.configuration = configuration;
     }
 
-    public CsvReader(IFileSystem fs): this(fs, new CsvConfiguration()) {}
+    public CsvReader(StreamReader reader): this(reader, new CsvConfiguration()) {}
 
-    public async Task<DataTable> CreateTableFromFileAsync(string path)
+    public async Task<DataTable> ReadAllAsync()
     {
-        ArgumentNullException.ThrowIfNull(path);
-        if(!fileSystem.File.Exists(path)) throw new FileNotFoundException($"The file at path {path} does not exists.");
+        var table = await CreateTable();
+
+        while (!reader.EndOfStream)
+        {
+            var line = await reader.ReadLineAsync();
+            AddRowFromLine(line!, table);
+        }
+
+        return table;
+    }
+
+    private async Task<DataTable> CreateTable()
+    {
         var table = new DataTable();
 
-        using var stream = fileSystem.File.OpenText(path);
-
-        if(stream.EndOfStream) return table;
-
-        var firstLine =  (await stream.ReadLineAsync())!;
-
-        if(configuration.HasHeader)
+        if (configuration.HasHeader)
         {
-            CreateColumnsFromHeader(firstLine, table);
+            var firstLine = await reader.ReadLineAsync();
+            CreateColumnsFromHeader(firstLine!, table);
         }
         else
         {
-            CreateDefaultColumns(firstLine, table);
-            AddRowFromLine(firstLine, table);
-        } 
-
-        var line = (await stream.ReadLineAsync())!;
-        while(!stream.EndOfStream)
-        {
-            AddRowFromLine(line, table);
-            line = (await stream.ReadLineAsync())!;
+            var position = reader.BaseStream.Position;
+            var line = await reader.ReadLineAsync();
+            reader.BaseStream.Position = position;
+            CreateDefaultColumns(line!.Split(configuration.Delimiter).Count(), table);
         }
 
         return table;
@@ -65,10 +66,9 @@ public class CsvReader : ICsvReader
         table.Rows.Add(row);
     }
 
-    private void CreateDefaultColumns(string firstLine, DataTable table)
+    private void CreateDefaultColumns(int columns, DataTable table)
     {
-        var columnsCount = firstLine.Split(configuration.Delimiter).Count();
-        foreach(var index in Enumerable.Range(0, columnsCount))
+        foreach(var index in Enumerable.Range(0, columns))
         {
             table.Columns.Add(new DataColumn(string.Format("Column_{0}", index)));
         }
@@ -81,24 +81,6 @@ public class CsvReader : ICsvReader
         foreach (var column in columnNames)
         {
             table.Columns.Add(new DataColumn(column));
-        }
-    }
-
-    public async Task LoadFileIntoTableAsync( string path, DataTable table)
-    {
-        ArgumentNullException.ThrowIfNull(path);
-        ArgumentNullException.ThrowIfNull(table);
-
-        using var stream = fileSystem.File.OpenText(path);
-
-        if(stream.EndOfStream) return;
-
-        var line =  (await stream.ReadLineAsync())!;
-
-        while(!stream.EndOfStream)
-        {
-            AddRowFromLine(line, table);
-            line = (await stream.ReadLineAsync())!;
         }
     }
 }
