@@ -14,38 +14,6 @@ public class JsonAdapterTest
     {
     }
 
-    [Fact]
-    public void ConvertRowToJson_Valid()
-    {
-        var table = new DataTable()
-        {
-            Columns =
-            {
-                new DataColumn("Coluna1", typeof(decimal)),
-                new DataColumn("Coluna2"),
-                new DataColumn("Coluna3", typeof(DateTime))
-            }
-        };
-
-        var row  = table.NewRow();
-
-        row[0] = 2.2;
-        row[1] = DateOnly.FromDateTime(DateTime.Now);
-        row[2] = DateTime.Now;
-
-        table.Rows.Add(row);
-
-        var sut = new JsonAdapter();
-        var obj = sut.ConvertRowToJson(row);
-
-        Assert.True(obj.ContainsKey("Coluna1"));
-        Assert.True(obj.ContainsKey("Coluna2"));
-        Assert.True(obj.ContainsKey("Coluna3"));
-
-        Assert.Equal(row[0].ToString(),obj["Coluna1"]!.ToString());
-        Assert.Equal(row[1].ToString(),obj["Coluna2"]!.ToString());
-        Assert.Equal(row[2].ToString(),obj["Coluna3"]!.ToString());
-    }
 
     [Fact]
     public void ConvertToJson_Valid()

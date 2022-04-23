@@ -1,14 +1,9 @@
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Application.Commons.Interfaces;
 
 namespace Application.Commons.Adapters;
-
-public interface IJsonAdapter
-{
-    JsonObject ConvertRowToJson(DataRow row);
-    JsonArray ConvertToJson(DataTable table);
-}
 
 public class JsonAdapter : IJsonAdapter
 {
@@ -25,7 +20,7 @@ public class JsonAdapter : IJsonAdapter
         return obj;
     }
 
-    public JsonObject ConvertRowToJson(DataRow row)
+    private JsonObject ConvertRowToJson(DataRow row)
     {
         var obj = new JsonObject();
 
